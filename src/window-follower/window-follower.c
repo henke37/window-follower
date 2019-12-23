@@ -2,6 +2,7 @@
 #include "window-follower.h"
 
 #include <obs-module.h>
+#include <util/dstr.h>
 
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE("window-follower", "en-US")
@@ -16,25 +17,53 @@ static void window_follower_update(void* data, obs_data_t* settings)
 	window_follower_data_t* filter = data;
 }
 
+static bool source_enum_proplist_add(obs_scene_t* scene,
+	obs_sceneitem_t* item, void* p)
+{
+	obs_source_t* source = obs_sceneitem_get_source(item);
+	if(!CanGetHWND(source)) return true;
+
+	const char* name = obs_source_get_name(source);
+	
+	obs_property_list_add_string((obs_property_t*)p, name, name);
+	UNUSED_PARAMETER(scene);
+	return true;
+}
+
 static obs_properties_t* window_follower_properties(void* data)
 {
 	window_follower_data_t* filter = data;
 	obs_properties_t* props = obs_properties_create();
 
+	if (!filter->scene) return props;
+
+	{
+		obs_property_t* p = obs_properties_add_list(props, "sourceId", T_("SourceId"),
+			OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+		obs_property_list_add_string(p, T_("SourceId.None"), "sourceIdNone");
+
+		// A list of sources
+		obs_scene_enum_items(filter->scene, source_enum_proplist_add, (void*)p);
+		//obs_property_set_modified_callback2(p, source_changed, filter);
+	}
 
 	return props;
-}
-
-static void window_follower_tick(void* data, float seconds)
-{
-	window_follower_data_t* filter = data;
 }
 
 static void* window_follower_create(obs_data_t* settings, obs_source_t* context)
 {
 	window_follower_data_t* filter = bzalloc(sizeof(*filter));
+	filter->filterSource = context;
+	obs_source_t *sceneSource = obs_filter_get_parent(context);
+	filter->scene = obs_scene_from_source(sceneSource);
 
 	return filter;
+}
+
+static void window_follower_lateInit(window_follower_data_t *filter) {
+	obs_source_t* sceneSource = obs_filter_get_parent(filter->filterSource);
+	filter->scene = obs_scene_from_source(sceneSource);
+	filter->lateInitializationDone = true;
 }
 
 static void window_follower_remove(void* data, obs_source_t* source)
@@ -47,6 +76,17 @@ static void window_follower_destroy(void* data)
 {
 	window_follower_data_t* filter = data;
 	bfree(filter);
+}
+
+static void window_follower_tick(void* data, float seconds)
+{
+	window_follower_data_t* filter = data;
+
+	if (!filter->lateInitializationDone) {
+		window_follower_lateInit(filter);
+	}
+
+
 }
 
 static void window_follower_defaults(obs_data_t* settings)
