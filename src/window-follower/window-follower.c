@@ -56,7 +56,7 @@ static void window_follower_defaults(obs_data_t* settings)
 static const char* window_follower_get_name(void* unused)
 {
 	UNUSED_PARAMETER(unused);
-	return T_("Window follower");
+	return T_("WindowFollower");
 }
 
 struct obs_source_info window_follower = {
