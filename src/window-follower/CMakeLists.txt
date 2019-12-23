@@ -5,14 +5,17 @@ include(${CMAKE_SOURCE_DIR}/external/FindLibObs.cmake)
 find_package(LibObs REQUIRED)
 set(window-follower_SOURCES
 	window-follower.c
+	getHWND.c
 	)
 	
 set(window-follower_HEADERS
 	capture-internals.h
+	getHWND.h
 	)	
 	
 include_directories(
-	"${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api")	
+	"${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api"
+	"${LIBOBS_INCLUDE_DIR}/../deps/ipc-util")	
 	
 add_library(window-follower MODULE
 	${window-follower_SOURCES}
@@ -21,7 +24,8 @@ add_library(window-follower MODULE
 target_link_libraries(window-follower
 	libobs)
 
-if(UNIX AND NOT APPLE)
+if(UNIX)
+	message(FATAL_ERROR "Not designed for non windows systems")
 
 	if(ARCH EQUAL 64)
 		set(ARCH_NAME "x86_64")
