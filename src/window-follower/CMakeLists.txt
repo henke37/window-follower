@@ -11,6 +11,7 @@ set(window-follower_SOURCES
 set(window-follower_HEADERS
 	capture-internals.h
 	getHWND.h
+	window-follower.h
 	)	
 	
 include_directories(
