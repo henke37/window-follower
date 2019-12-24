@@ -34,7 +34,16 @@ static bool source_enum_proplist_add(obs_scene_t* scene,
 void setupSceneItem(window_follower_data_t* filter, obs_data_t* settings) {
 
 	const char* sourceName = obs_data_get_string(settings, "sourceId");
+
+	if (filter->sceneItem) {
+		obs_sceneitem_release(filter->sceneItem);
+	}
+
 	filter->sceneItem = obs_scene_find_source(filter->scene, sourceName);
+
+	if (filter->sceneItem) {
+		obs_sceneitem_addref(filter->sceneItem);
+	}
 
 	if (filter->mainSource) {
 		obs_source_release(filter->mainSource);
@@ -102,6 +111,11 @@ static void window_follower_remove(void* data, obs_source_t* source)
 	if (filter->mainSource) {
 		obs_source_release(filter->mainSource);
 		filter->mainSource = NULL;
+	}
+
+	if (filter->sceneItem) {
+		obs_sceneitem_release(filter->sceneItem);
+		filter->sceneItem = NULL;
 	}
 
 	UNUSED_PARAMETER(source);
