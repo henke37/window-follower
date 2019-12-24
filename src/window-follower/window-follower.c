@@ -36,7 +36,16 @@ void setupSceneItem(window_follower_data_t* filter, obs_data_t* settings) {
 	const char* sourceName = obs_data_get_string(settings, "sourceId");
 	filter->sceneItem = obs_scene_find_source(filter->scene, sourceName);
 
+	if (filter->mainSource) {
+		obs_source_release(filter->mainSource);
+	}
+
 	obs_source_t* source = obs_sceneitem_get_source(filter->sceneItem);
+
+	if (source) {
+		obs_source_addref(source);
+		filter->mainSource = source;
+	}
 
 	filter->hwndPtr = GetHWND(source);
 }
@@ -89,6 +98,12 @@ static void window_follower_lateInit(window_follower_data_t *filter) {
 static void window_follower_remove(void* data, obs_source_t* source)
 {
 	window_follower_data_t* filter = data;
+
+	if (filter->mainSource) {
+		obs_source_release(filter->mainSource);
+		filter->mainSource = NULL;
+	}
+
 	UNUSED_PARAMETER(source);
 }
 
