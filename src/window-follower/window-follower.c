@@ -12,9 +12,10 @@ static void window_follower_save(void* data, obs_data_t* settings)
 	window_follower_data_t* filter = data;
 }
 
-static void window_follower_update(void* data, obs_data_t* settings)
+static void window_follower_updateSettings(void* data, obs_data_t* settings)
 {
 	window_follower_data_t* filter = data;
+
 }
 
 static bool source_enum_proplist_add(obs_scene_t* scene,
@@ -30,6 +31,26 @@ static bool source_enum_proplist_add(obs_scene_t* scene,
 	return true;
 }
 
+void setupSceneItem(window_follower_data_t* filter, obs_data_t* settings) {
+
+	const char* sourceName = obs_data_get_string(settings, "sourceId");
+	filter->sceneItem = obs_scene_find_source(filter->scene, sourceName);
+
+	obs_source_t* source = obs_sceneitem_get_source(filter->sceneItem);
+
+	filter->hwndPtr = GetHWND(source);
+}
+
+static bool source_changed(void* data, obs_properties_t* props,
+	obs_property_t* p, obs_data_t* settings) {
+	window_follower_data_t* filter = data;
+
+	setupSceneItem(filter, settings);
+
+	return false;//no need to rebuild the properties
+}
+
+
 static obs_properties_t* window_follower_properties(void* data)
 {
 	window_follower_data_t* filter = data;
@@ -41,6 +62,7 @@ static obs_properties_t* window_follower_properties(void* data)
 		obs_property_t* p = obs_properties_add_list(props, "sourceId", T_("SourceId"),
 			OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
 		obs_property_list_add_string(p, T_("SourceId.None"), "sourceIdNone");
+		obs_property_set_modified_callback2(p, source_changed, filter);
 
 		// A list of sources
 		obs_scene_enum_items(filter->scene, source_enum_proplist_add, (void*)p);
@@ -54,8 +76,6 @@ static void* window_follower_create(obs_data_t* settings, obs_source_t* context)
 {
 	window_follower_data_t* filter = bzalloc(sizeof(*filter));
 	filter->filterSource = context;
-	obs_source_t *sceneSource = obs_filter_get_parent(context);
-	filter->scene = obs_scene_from_source(sceneSource);
 
 	return filter;
 }
@@ -86,11 +106,35 @@ static void window_follower_tick(void* data, float seconds)
 		window_follower_lateInit(filter);
 	}
 
+	if (filter->sceneItem) {
+		//filter->pos.x += 0.1f;
+		//if (filter->pos.x > 400) filter->pos.x -= 400;
 
+		if (filter->hwndPtr) {
+			HWND hwnd = *filter->hwndPtr;
+
+			if (IsWindow(hwnd)) {
+				RECT wndPos;
+				if (GetWindowRect(hwnd, &wndPos)) {
+					filter->pos.x = (float)wndPos.left;
+					filter->pos.y = (float)wndPos.top;
+				}
+			}
+		}
+
+		obs_sceneitem_set_pos(filter->sceneItem, &filter->pos);
+	}
 }
 
 static void window_follower_defaults(obs_data_t* settings)
 {
+}
+
+static void window_follower_load(void* data, obs_data_t* settings)
+{
+	window_follower_data_t* filter = data;
+
+	setupSceneItem(filter, settings);
 }
 
 static const char* window_follower_get_name(void* unused)
@@ -106,11 +150,12 @@ struct obs_source_info window_follower = {
 	.get_name = window_follower_get_name,
 	.create = window_follower_create,
 	.destroy = window_follower_destroy,
-	.update = window_follower_update,
+	.update = window_follower_updateSettings,
 	.get_properties = window_follower_properties,
 	.get_defaults = window_follower_defaults,
 	.video_tick = window_follower_tick,
 	.save = window_follower_save,
+	.load = window_follower_load,
 	.filter_remove = window_follower_remove
 };
 

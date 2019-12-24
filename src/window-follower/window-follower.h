@@ -9,8 +9,12 @@
 struct window_follower_data {
 	HWND *hwndPtr;
 	obs_source_t *filterSource;
-	obs_source_t *mainSource;
+	//obs_source_t *mainSource;
 	obs_scene_t *scene;
+	obs_sceneitem_t *sceneItem;
+
+	struct vec2 pos;
+
 	bool lateInitializationDone;
 };
 
