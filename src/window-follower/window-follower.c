@@ -120,6 +120,45 @@ BOOL monitor_enum_proplist_add(
 	return TRUE;
 }
 
+struct monitor_enum_set_monitor_data {
+	window_follower_data_t* filter;
+	const char *monitorName;
+};
+
+BOOL monitor_enum_set_monitor(
+	HMONITOR Arg1,
+	HDC Arg2,
+	LPRECT Arg3,
+	LPARAM Arg4
+) {
+	struct monitor_enum_set_monitor_data* cbData = (struct monitor_enum_set_monitor_data* )Arg4;
+
+	MONITORINFOEXA info;
+	info.cbSize = sizeof(info);
+
+	BOOL success = GetMonitorInfoA(Arg1, (LPMONITORINFO)&info);
+
+	if (strcmp(info.szDevice, cbData->monitorName) != 0) return TRUE;
+
+	cbData->filter->monitor = Arg1;
+	return FALSE;
+}
+
+void updateMonitorField(window_follower_data_t* filter, obs_data_t* settings) {
+	filter->monitor = NULL;
+	struct monitor_enum_set_monitor_data cbData = { .filter = filter, .monitorName = obs_data_get_string(settings, "monitor") };
+	EnumDisplayMonitors(NULL, NULL, monitor_enum_set_monitor, (LPARAM)&cbData);
+}
+
+static bool monitor_changed(void* data, obs_properties_t* props,
+	obs_property_t* p, obs_data_t* settings) {
+	window_follower_data_t* filter = data;
+
+	updateMonitorField(filter, settings);
+
+	return false;
+}
+
 static obs_properties_t* window_follower_properties(void* data)
 {
 	window_follower_data_t* filter = data;
@@ -152,8 +191,8 @@ static obs_properties_t* window_follower_properties(void* data)
 	if (posScaleUsesMonitor(filter->posScale)) {
 		obs_property_t* p = obs_properties_add_list(props, "monitor", T_("Monitor"),
 			OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
-		//obs_property_list_add_string(p, "Dummy monitor", "Dummy");
 		EnumDisplayMonitors(NULL, NULL, monitor_enum_proplist_add, (LPARAM)p);
+		obs_property_set_modified_callback2(p, monitor_changed, filter);
 	}
 
 	return props;
@@ -242,6 +281,7 @@ static void window_follower_load(void* data, obs_data_t* settings)
 	window_follower_data_t* filter = data;
 
 	setupSceneItem(filter, settings);
+	updateMonitorField(filter, settings);
 }
 
 static void window_follower_show(void* data) {
@@ -250,6 +290,7 @@ static void window_follower_show(void* data) {
 	obs_data_t* settings = obs_source_get_settings(filter->filterSource);
 
 	setupSceneItem(filter, settings);
+	updateMonitorField(filter, settings);
 
 	obs_data_release(settings);
 }
