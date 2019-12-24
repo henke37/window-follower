@@ -11,6 +11,8 @@ HWND* GetHWND(obs_source_t *source) {
 	void *data=source->context.data;
 	const char* id = obs_source_get_id(source);
 
+	if (!data) return NULL;
+
 	if (strcmp(id, "game_capture") == 0) {
 		struct game_capture* gcData = (struct game_capture*)data;
 		return &gcData->window;
