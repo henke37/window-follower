@@ -137,6 +137,16 @@ static void window_follower_load(void* data, obs_data_t* settings)
 	setupSceneItem(filter, settings);
 }
 
+static void window_follower_show(void* data) {
+	window_follower_data_t* filter = data;
+
+	obs_data_t* settings = obs_source_get_settings(filter->filterSource);
+
+	setupSceneItem(filter, settings);
+
+	obs_data_release(settings);
+}
+
 static const char* window_follower_get_name(void* unused)
 {
 	UNUSED_PARAMETER(unused);
@@ -156,7 +166,8 @@ struct obs_source_info window_follower = {
 	.video_tick = window_follower_tick,
 	.save = window_follower_save,
 	.load = window_follower_load,
-	.filter_remove = window_follower_remove
+	.filter_remove = window_follower_remove,
+	.show = window_follower_show
 };
 
 bool obs_module_load(void) {
