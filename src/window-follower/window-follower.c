@@ -3,6 +3,7 @@
 
 #include <obs-module.h>
 #include <util/dstr.h>
+#include <obs-frontend-api.h>
 
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE("window-follower", "en-US")
@@ -68,6 +69,39 @@ static bool source_changed(void* data, obs_properties_t* props,
 	return false;//no need to rebuild the properties
 }
 
+enum PosScaleMode parsePosScale(const char* posScaleName) {
+	if (strcmp(posScaleName, "None") == 0) return PosScaleNone;
+	if (strcmp(posScaleName, "MonitorToCanvas") == 0) return PosScaleMonitorToCanvas;
+	if (strcmp(posScaleName, "DesktopToCanvas") == 0) return PosScaleDesktopToCanvas;
+	if (strcmp(posScaleName, "MonitorToScene") == 0) return PosScaleMonitorToScene;
+	if (strcmp(posScaleName, "DesktopToScene") == 0) return PosScaleDesktopToScene;
+
+	return PosScaleNone;
+}
+
+bool posScaleUsesMonitor(enum PosScaleMode posScale) {
+	switch (posScale) {
+	case PosScaleMonitorToCanvas:
+	case PosScaleMonitorToScene: return true;
+	default: return false;
+	}
+}
+
+static bool posScale_changed(void* data, obs_properties_t* props,
+	obs_property_t* p, obs_data_t* settings) {
+	window_follower_data_t* filter = data;
+
+	enum PosScaleMode newPosScale = parsePosScale(obs_data_get_string(settings, "posScale"));
+		
+	if (newPosScale == filter->posScale) return false;
+
+	enum PosScaleMode oldPosScale = filter->posScale;
+	filter->posScale = newPosScale;
+
+	//we need to rebuild the properties if we switch between posscale modes that use and doesn't use a monitor
+	return posScaleUsesMonitor(newPosScale) != posScaleUsesMonitor(oldPosScale);
+}
+
 
 static obs_properties_t* window_follower_properties(void* data)
 {
@@ -84,7 +118,24 @@ static obs_properties_t* window_follower_properties(void* data)
 
 		// A list of sources
 		obs_scene_enum_items(filter->scene, source_enum_proplist_add, (void*)p);
-		//obs_property_set_modified_callback2(p, source_changed, filter);
+		obs_property_set_modified_callback2(p, source_changed, filter);
+	}
+
+	{
+		obs_property_t* p = obs_properties_add_list(props, "posScale", T_("ScalePos"),
+			OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+		obs_property_list_add_string(p, T_("ScalePos.None"), "None");
+		obs_property_list_add_string(p, T_("ScalePos.MonitorToCanvas"), "MonitorToCanvas");
+		obs_property_list_add_string(p, T_("ScalePos.DesktopToCanvas"), "DesktopToCanvas");
+		obs_property_list_add_string(p, T_("ScalePos.MonitorToScene"), "MonitorToScene");
+		obs_property_list_add_string(p, T_("ScalePos.DesktopToScene"), "DesktopToScene");
+		obs_property_set_modified_callback2(p, posScale_changed, filter);
+	}
+
+	if (posScaleUsesMonitor(filter->posScale)) {
+		obs_property_t* p = obs_properties_add_list(props, "monitor", T_("Monitor"),
+			OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+		obs_property_list_add_string(p, "Dummy monitor", "Dummy");
 	}
 
 	return props;
@@ -165,6 +216,7 @@ static void window_follower_tick(void* data, float seconds)
 
 static void window_follower_defaults(obs_data_t* settings)
 {
+	obs_data_set_default_string(settings, "posScale", "None");
 }
 
 static void window_follower_load(void* data, obs_data_t* settings)

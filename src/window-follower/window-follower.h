@@ -6,6 +6,14 @@
 
 #include <obs-module.h>
 
+enum PosScaleMode {
+	PosScaleNone,
+	PosScaleMonitorToCanvas,
+	PosScaleDesktopToCanvas,
+	PosScaleMonitorToScene,
+	PosScaleDesktopToScene
+};
+
 struct window_follower_data {
 	HWND *hwndPtr;
 	obs_source_t *filterSource;
@@ -16,6 +24,8 @@ struct window_follower_data {
 	struct vec2 pos;
 
 	bool lateInitializationDone;
+
+	enum PosScaleMode posScale;
 };
 
 typedef struct window_follower_data window_follower_data_t;
