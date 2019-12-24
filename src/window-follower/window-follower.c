@@ -276,12 +276,15 @@ static void window_follower_tick(void* data, float seconds)
 
 		if (filter->hwndPtr) {
 			HWND hwnd = *filter->hwndPtr;
+			RECT wndPos;
 
-			if (IsWindow(hwnd)) {
-				RECT wndPos;
-				if (GetWindowRect(hwnd, &wndPos)) {
+			if (IsWindow(hwnd) && GetWindowRect(hwnd, &wndPos)) {
+				if (filter->posScale == PosScaleNone) {
 					filter->pos.x = (float)wndPos.left;
 					filter->pos.y = (float)wndPos.top;
+				}
+				else {
+
 				}
 			}
 		}
