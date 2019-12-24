@@ -101,6 +101,9 @@ static void* window_follower_create(obs_data_t* settings, obs_source_t* context)
 static void window_follower_lateInit(window_follower_data_t *filter) {
 	obs_source_t* sceneSource = obs_filter_get_parent(filter->filterSource);
 	filter->scene = obs_scene_from_source(sceneSource);
+
+	obs_scene_addref(filter->scene);
+
 	filter->lateInitializationDone = true;
 }
 
@@ -116,6 +119,11 @@ static void window_follower_remove(void* data, obs_source_t* source)
 	if (filter->sceneItem) {
 		obs_sceneitem_release(filter->sceneItem);
 		filter->sceneItem = NULL;
+	}
+
+	if (filter->scene) {
+		obs_scene_release(filter->scene);
+		filter->scene = NULL;
 	}
 
 	UNUSED_PARAMETER(source);
