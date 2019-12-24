@@ -298,6 +298,17 @@ static void window_follower_tick(void* data, float seconds)
 			RECT wndPos;
 
 			if (IsWindow(hwnd) && GetWindowRect(hwnd, &wndPos)) {
+				struct obs_video_info vidInfo;
+				obs_get_video_info(&vidInfo);
+
+				float itemWidth = (float)obs_source_get_width(filter->mainSource);
+				float itemHeight = (float)obs_source_get_height(filter->mainSource);
+
+				struct vec2 scale;
+				obs_sceneitem_get_scale(filter->sceneItem, &scale);
+				itemWidth *= scale.x;
+				itemHeight *= scale.y;
+
 				if (filter->posScale == PosScaleNone) {
 					filter->pos.x = (float)wndPos.left;
 					filter->pos.y = (float)wndPos.top;
@@ -306,7 +317,13 @@ static void window_follower_tick(void* data, float seconds)
 
 				}
 
+				if (filter->stayInBounds) {
+					if (filter->pos.x < 0) filter->pos.x = 0;
+					if (filter->pos.x + itemWidth > vidInfo.base_width) filter->pos.x = vidInfo.base_width - itemWidth;
 
+					if (filter->pos.y < 0) filter->pos.y = 0;
+					if (filter->pos.y + itemHeight > vidInfo.base_height) filter->pos.y = vidInfo.base_height - itemHeight;
+				}
 
 			}
 		}
