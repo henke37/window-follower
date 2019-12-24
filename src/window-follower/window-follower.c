@@ -102,6 +102,23 @@ static bool posScale_changed(void* data, obs_properties_t* props,
 	return posScaleUsesMonitor(newPosScale) != posScaleUsesMonitor(oldPosScale);
 }
 
+BOOL monitor_enum_proplist_add(
+	HMONITOR Arg1,
+	HDC Arg2,
+	LPRECT Arg3,
+	LPARAM Arg4
+) {
+	obs_property_t* p = (obs_property_t * )Arg4;
+	MONITORINFOEXA info;
+	info.cbSize = sizeof(info);
+
+	BOOL success=GetMonitorInfoA(Arg1, (LPMONITORINFO) &info);
+	if (!success) return TRUE;
+
+	obs_property_list_add_string(p, info.szDevice, info.szDevice);
+
+	return TRUE;
+}
 
 static obs_properties_t* window_follower_properties(void* data)
 {
@@ -135,7 +152,8 @@ static obs_properties_t* window_follower_properties(void* data)
 	if (posScaleUsesMonitor(filter->posScale)) {
 		obs_property_t* p = obs_properties_add_list(props, "monitor", T_("Monitor"),
 			OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
-		obs_property_list_add_string(p, "Dummy monitor", "Dummy");
+		//obs_property_list_add_string(p, "Dummy monitor", "Dummy");
+		EnumDisplayMonitors(NULL, NULL, monitor_enum_proplist_add, (LPARAM)p);
 	}
 
 	return props;
