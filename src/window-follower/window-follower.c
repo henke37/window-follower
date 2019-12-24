@@ -9,6 +9,7 @@ OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE("window-follower", "en-US")
 
 void updateMonitorField(window_follower_data_t* filter, obs_data_t* settings);
+void updateStayInBoundsField(window_follower_data_t* filter, obs_data_t* settings);
 
 static void window_follower_save(void* data, obs_data_t* settings)
 {
@@ -178,6 +179,19 @@ static bool monitor_changed(void* data, obs_properties_t* props,
 	return false;
 }
 
+void updateStayInBoundsField(window_follower_data_t* filter, obs_data_t* settings) {
+	filter->stayInBounds = obs_data_get_bool(settings, "stayInBounds");
+}
+
+static bool stayInBounds_changed(void* data, obs_properties_t* props,
+	obs_property_t* p, obs_data_t* settings) {
+	window_follower_data_t* filter = data;
+
+	updateStayInBoundsField(filter, settings);
+
+	return false;
+}
+
 static obs_properties_t* window_follower_properties(void* data)
 {
 	window_follower_data_t* filter = data;
@@ -194,6 +208,11 @@ static obs_properties_t* window_follower_properties(void* data)
 		// A list of sources
 		obs_scene_enum_items(filter->scene, source_enum_proplist_add, (void*)p);
 		obs_property_set_modified_callback2(p, source_changed, filter);
+	}
+
+	{
+		obs_property_t* p = obs_properties_add_bool(props, "stayInBounds", T_("StayInBounds"));
+		obs_property_set_modified_callback2(p, stayInBounds_changed, filter);
 	}
 
 	{
@@ -286,6 +305,9 @@ static void window_follower_tick(void* data, float seconds)
 				else {
 
 				}
+
+
+
 			}
 		}
 
@@ -296,6 +318,7 @@ static void window_follower_tick(void* data, float seconds)
 static void window_follower_defaults(obs_data_t* settings)
 {
 	obs_data_set_default_string(settings, "posScale", "None");
+	obs_data_set_default_bool(settings, "stayInBounds", false);
 }
 
 static void window_follower_load(void* data, obs_data_t* settings)
@@ -303,6 +326,7 @@ static void window_follower_load(void* data, obs_data_t* settings)
 	window_follower_data_t* filter = data;
 
 	setupSceneItem(filter, settings);
+	updateStayInBoundsField(filter, settings);
 	updatePosScale(filter, settings);
 	updateMonitorField(filter, settings);
 }
@@ -313,6 +337,7 @@ static void window_follower_show(void* data) {
 	obs_data_t* settings = obs_source_get_settings(filter->filterSource);
 
 	setupSceneItem(filter, settings);
+	updateStayInBoundsField(filter, settings);
 	updatePosScale(filter, settings);
 	updateMonitorField(filter, settings);
 

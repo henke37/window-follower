@@ -26,6 +26,8 @@ struct window_follower_data {
 
 	bool lateInitializationDone;
 
+	bool stayInBounds;
+
 	enum PosScaleMode posScale;
 
 	HMONITOR monitor;
