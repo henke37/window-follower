@@ -22,6 +22,7 @@ struct window_follower_data {
 	obs_sceneitem_t *sceneItem;
 
 	struct vec2 pos;
+	RECT baseWindowDisplayArea;
 
 	bool lateInitializationDone;
 

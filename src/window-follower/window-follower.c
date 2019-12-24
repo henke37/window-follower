@@ -8,6 +8,8 @@
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE("window-follower", "en-US")
 
+void updateMonitorField(window_follower_data_t* filter, obs_data_t* settings);
+
 static void window_follower_save(void* data, obs_data_t* settings)
 {
 	window_follower_data_t* filter = data;
@@ -87,19 +89,34 @@ bool posScaleUsesMonitor(enum PosScaleMode posScale) {
 	}
 }
 
-static bool posScale_changed(void* data, obs_properties_t* props,
-	obs_property_t* p, obs_data_t* settings) {
-	window_follower_data_t* filter = data;
-
+bool updatePosScale(window_follower_data_t* filter, obs_data_t* settings) {
 	enum PosScaleMode newPosScale = parsePosScale(obs_data_get_string(settings, "posScale"));
-		
+
 	if (newPosScale == filter->posScale) return false;
 
 	enum PosScaleMode oldPosScale = filter->posScale;
 	filter->posScale = newPosScale;
 
+	if (posScaleUsesMonitor(newPosScale)) {
+		updateMonitorField(filter, settings);
+	}
+	else {
+		filter->monitor = NULL;
+		filter->baseWindowDisplayArea.left = GetSystemMetrics(SM_YVIRTUALSCREEN);
+		filter->baseWindowDisplayArea.top = GetSystemMetrics(SM_XVIRTUALSCREEN);
+		filter->baseWindowDisplayArea.right = filter->baseWindowDisplayArea.left + GetSystemMetrics(SM_CXVIRTUALSCREEN);
+		filter->baseWindowDisplayArea.bottom = filter->baseWindowDisplayArea.top + GetSystemMetrics(SM_CYVIRTUALSCREEN);
+	}
+
 	//we need to rebuild the properties if we switch between posscale modes that use and doesn't use a monitor
 	return posScaleUsesMonitor(newPosScale) != posScaleUsesMonitor(oldPosScale);
+}
+
+static bool posScale_changed(void* data, obs_properties_t* props,
+	obs_property_t* p, obs_data_t* settings) {
+	window_follower_data_t* filter = data;
+
+	return updatePosScale(filter, settings);
 }
 
 BOOL monitor_enum_proplist_add(
@@ -141,6 +158,7 @@ BOOL monitor_enum_set_monitor(
 	if (strcmp(info.szDevice, cbData->monitorName) != 0) return TRUE;
 
 	cbData->filter->monitor = Arg1;
+	cbData->filter->baseWindowDisplayArea = *Arg3;
 	return FALSE;
 }
 
@@ -148,6 +166,7 @@ void updateMonitorField(window_follower_data_t* filter, obs_data_t* settings) {
 	filter->monitor = NULL;
 	struct monitor_enum_set_monitor_data cbData = { .filter = filter, .monitorName = obs_data_get_string(settings, "monitor") };
 	EnumDisplayMonitors(NULL, NULL, monitor_enum_set_monitor, (LPARAM)&cbData);
+
 }
 
 static bool monitor_changed(void* data, obs_properties_t* props,
@@ -281,6 +300,7 @@ static void window_follower_load(void* data, obs_data_t* settings)
 	window_follower_data_t* filter = data;
 
 	setupSceneItem(filter, settings);
+	updatePosScale(filter, settings);
 	updateMonitorField(filter, settings);
 }
 
@@ -290,6 +310,7 @@ static void window_follower_show(void* data) {
 	obs_data_t* settings = obs_source_get_settings(filter->filterSource);
 
 	setupSceneItem(filter, settings);
+	updatePosScale(filter, settings);
 	updateMonitorField(filter, settings);
 
 	obs_data_release(settings);
