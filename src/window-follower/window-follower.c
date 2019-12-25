@@ -198,6 +198,7 @@ static obs_properties_t *window_follower_properties(void *data) {
 		obs_property_t *p = obs_properties_add_list(props, "sourceId", T_("SourceId"),
 			OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
 		obs_property_list_add_string(p, T_("SourceId.None"), "sourceIdNone");
+		obs_property_set_long_description(p, T_("SourceId.LongDesc"));
 		obs_property_set_modified_callback2(p, source_changed, filter);
 
 		// A list of sources
@@ -207,6 +208,7 @@ static obs_properties_t *window_follower_properties(void *data) {
 
 	{
 		obs_property_t *p = obs_properties_add_bool(props, "stayInBounds", T_("StayInBounds"));
+		obs_property_set_long_description(p, T_("StayInBounds.LongDesc"));
 		obs_property_set_modified_callback2(p, stayInBounds_changed, filter);
 	}
 
@@ -218,6 +220,7 @@ static obs_properties_t *window_follower_properties(void *data) {
 		obs_property_list_add_string(p, T_("ScalePos.DesktopToCanvas"), "DesktopToCanvas");
 		obs_property_list_add_string(p, T_("ScalePos.MonitorToScene"), "MonitorToScene");
 		obs_property_list_add_string(p, T_("ScalePos.DesktopToScene"), "DesktopToScene");
+		obs_property_set_long_description(p, T_("ScalePos.LongDesc"));
 		obs_property_set_modified_callback2(p, posScale_changed, filter);
 	}
 
@@ -225,6 +228,7 @@ static obs_properties_t *window_follower_properties(void *data) {
 		obs_property_t *p = obs_properties_add_list(props, "monitor", T_("Monitor"),
 			OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
 		EnumDisplayMonitors(NULL, NULL, monitor_enum_proplist_add, (LPARAM)p);
+		obs_property_set_long_description(p, T_("Monitor.LongDesc"));
 		obs_property_set_modified_callback2(p, monitor_changed, filter);
 	}
 
