@@ -8,7 +8,6 @@
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE("window-follower", "en-US")
 
-void updateMonitorField(window_follower_data_t *filter, obs_data_t *settings);
 void updateStayInBoundsField(window_follower_data_t *filter, obs_data_t *settings);
 
 static void window_follower_save(void *data, obs_data_t *settings) {
@@ -87,6 +86,31 @@ bool posScaleUsesMonitor(enum PosScaleMode posScale) {
 	}
 }
 
+struct monitor_enum_set_monitor_data {
+	window_follower_data_t *filter;
+	const char *monitorName;
+};
+
+BOOL monitor_enum_set_monitor(
+	HMONITOR Arg1,
+	HDC Arg2,
+	LPRECT Arg3,
+	LPARAM Arg4
+) {
+	struct monitor_enum_set_monitor_data *cbData = (struct monitor_enum_set_monitor_data *)Arg4;
+
+	MONITORINFOEXA info;
+	info.cbSize = sizeof(info);
+
+	BOOL success = GetMonitorInfoA(Arg1, (LPMONITORINFO)&info);
+
+	if(strcmp(info.szDevice, cbData->monitorName) != 0) return TRUE;
+
+	cbData->filter->monitor = Arg1;
+	cbData->filter->baseWindowDisplayArea = *Arg3;
+	return FALSE;
+}
+
 bool updatePosScale(window_follower_data_t *filter, obs_data_t *settings) {
 	enum PosScaleMode newPosScale = parsePosScale(obs_data_get_string(settings, "posScale"));
 
@@ -95,10 +119,12 @@ bool updatePosScale(window_follower_data_t *filter, obs_data_t *settings) {
 	enum PosScaleMode oldPosScale = filter->posScale;
 	filter->posScale = newPosScale;
 
+	filter->monitor = NULL;
 	if(posScaleUsesMonitor(newPosScale)) {
-		updateMonitorField(filter, settings);
-	} else {
-		filter->monitor = NULL;
+		struct monitor_enum_set_monitor_data cbData = {.filter = filter, .monitorName = obs_data_get_string(settings, "monitor")};
+		EnumDisplayMonitors(NULL, NULL, monitor_enum_set_monitor, (LPARAM)&cbData);
+	}
+	if(filter->monitor == NULL) {
 		filter->baseWindowDisplayArea.left = GetSystemMetrics(SM_YVIRTUALSCREEN);
 		filter->baseWindowDisplayArea.top = GetSystemMetrics(SM_XVIRTUALSCREEN);
 		filter->baseWindowDisplayArea.right = filter->baseWindowDisplayArea.left + GetSystemMetrics(SM_CXVIRTUALSCREEN);
@@ -134,43 +160,13 @@ BOOL monitor_enum_proplist_add(
 	return TRUE;
 }
 
-struct monitor_enum_set_monitor_data {
-	window_follower_data_t *filter;
-	const char *monitorName;
-};
 
-BOOL monitor_enum_set_monitor(
-	HMONITOR Arg1,
-	HDC Arg2,
-	LPRECT Arg3,
-	LPARAM Arg4
-) {
-	struct monitor_enum_set_monitor_data *cbData = (struct monitor_enum_set_monitor_data *)Arg4;
-
-	MONITORINFOEXA info;
-	info.cbSize = sizeof(info);
-
-	BOOL success = GetMonitorInfoA(Arg1, (LPMONITORINFO)&info);
-
-	if(strcmp(info.szDevice, cbData->monitorName) != 0) return TRUE;
-
-	cbData->filter->monitor = Arg1;
-	cbData->filter->baseWindowDisplayArea = *Arg3;
-	return FALSE;
-}
-
-void updateMonitorField(window_follower_data_t *filter, obs_data_t *settings) {
-	filter->monitor = NULL;
-	struct monitor_enum_set_monitor_data cbData = {.filter = filter, .monitorName = obs_data_get_string(settings, "monitor")};
-	EnumDisplayMonitors(NULL, NULL, monitor_enum_set_monitor, (LPARAM)&cbData);
-
-}
 
 static bool monitor_changed(void *data, obs_properties_t *props,
 	obs_property_t *p, obs_data_t *settings) {
 	window_follower_data_t *filter = data;
 
-	updateMonitorField(filter, settings);
+	updatePosScale(filter, settings);
 
 	return false;
 }
@@ -337,7 +333,6 @@ static void window_follower_load(void *data, obs_data_t *settings) {
 	setupSceneItem(filter, settings);
 	updateStayInBoundsField(filter, settings);
 	updatePosScale(filter, settings);
-	updateMonitorField(filter, settings);
 }
 
 static void window_follower_show(void *data) {
@@ -348,7 +343,6 @@ static void window_follower_show(void *data) {
 	setupSceneItem(filter, settings);
 	updateStayInBoundsField(filter, settings);
 	updatePosScale(filter, settings);
-	updateMonitorField(filter, settings);
 
 	obs_data_release(settings);
 }
