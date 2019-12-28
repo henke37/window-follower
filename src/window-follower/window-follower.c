@@ -114,8 +114,6 @@ BOOL monitor_enum_set_monitor(
 bool updatePosScale(window_follower_data_t *filter, obs_data_t *settings) {
 	enum PosScaleMode newPosScale = parsePosScale(obs_data_get_string(settings, "posScale"));
 
-	if(newPosScale == filter->posScale) return false;
-
 	enum PosScaleMode oldPosScale = filter->posScale;
 	filter->posScale = newPosScale;
 
