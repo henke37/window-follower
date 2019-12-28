@@ -304,7 +304,14 @@ static void window_follower_tick(void *data, float seconds) {
 					filter->pos.x = (float)wndPos.left;
 					filter->pos.y = (float)wndPos.top;
 				} else {
+					float adjustedLeft = (float)wndPos.left - filter->baseWindowDisplayArea.left;
+					float adjustedTop  = (float)wndPos.top - filter->baseWindowDisplayArea.top;
 
+					float xScaler = (float)vidInfo.base_width / (float)(filter->baseWindowDisplayArea.right - filter->baseWindowDisplayArea.left);
+					float yScaler = (float)vidInfo.base_height / (float)(filter->baseWindowDisplayArea.bottom - filter->baseWindowDisplayArea.top);
+
+					filter->pos.x = adjustedLeft * xScaler;
+					filter->pos.y = adjustedTop * yScaler;
 				}
 
 				if(filter->stayInBounds) {
