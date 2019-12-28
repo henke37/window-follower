@@ -70,8 +70,6 @@ static bool source_changed(void *data, obs_properties_t *props,
 
 enum PosScaleMode parsePosScale(const char *posScaleName) {
 	if(strcmp(posScaleName, "None") == 0) return PosScaleNone;
-	if(strcmp(posScaleName, "MonitorToCanvas") == 0) return PosScaleMonitorToCanvas;
-	if(strcmp(posScaleName, "DesktopToCanvas") == 0) return PosScaleDesktopToCanvas;
 	if(strcmp(posScaleName, "MonitorToScene") == 0) return PosScaleMonitorToScene;
 	if(strcmp(posScaleName, "DesktopToScene") == 0) return PosScaleDesktopToScene;
 
@@ -80,7 +78,6 @@ enum PosScaleMode parsePosScale(const char *posScaleName) {
 
 bool posScaleUsesMonitor(enum PosScaleMode posScale) {
 	switch(posScale) {
-		case PosScaleMonitorToCanvas:
 		case PosScaleMonitorToScene: return true;
 		default: return false;
 	}
@@ -210,8 +207,6 @@ static obs_properties_t *window_follower_properties(void *data) {
 		obs_property_t *p = obs_properties_add_list(props, "posScale", T_("ScalePos"),
 			OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
 		obs_property_list_add_string(p, T_("ScalePos.None"), "None");
-		obs_property_list_add_string(p, T_("ScalePos.MonitorToCanvas"), "MonitorToCanvas");
-		obs_property_list_add_string(p, T_("ScalePos.DesktopToCanvas"), "DesktopToCanvas");
 		obs_property_list_add_string(p, T_("ScalePos.MonitorToScene"), "MonitorToScene");
 		obs_property_list_add_string(p, T_("ScalePos.DesktopToScene"), "DesktopToScene");
 		obs_property_set_long_description(p, T_("ScalePos.LongDesc"));

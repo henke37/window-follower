@@ -8,8 +8,6 @@
 
 enum PosScaleMode {
 	PosScaleNone,
-	PosScaleMonitorToCanvas,
-	PosScaleDesktopToCanvas,
 	PosScaleMonitorToScene,
 	PosScaleDesktopToScene
 };
