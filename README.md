@@ -9,6 +9,9 @@ Add the plugin to the scene with the scene item that you want to work with. Set 
 * Scale mode: How to translate window coordinates to scene coordinates. Only really matters in multimonitor setups.
 * Monitor: The monitor to use when in monitor to scene scale mode.
 
+## Limitations
+* The scene item should not be rotated or skewed.
+
 ## Build
 ### Windows
 First follow build procedures for [obs-studio](https://github.com/obsproject/obs-studio/wiki/install-instructions#windows-build-directions).
