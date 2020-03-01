@@ -166,14 +166,18 @@ static bool monitor_changed(void *data, obs_properties_t *props,
 	return false;
 }
 
-static bool bounds_changed(void *data, obs_properties_t *props,
-	obs_property_t *p, obs_data_t *settings) {
-	window_follower_data_t *filter = data;
-
+static void updateBounds(window_follower_data_t *filter, obs_data_t *settings) {
 	filter->sceneBoundsLeft = (int)obs_data_get_int(settings, "boundsLeft");
 	filter->sceneBoundsTop = (int)obs_data_get_int(settings, "boundsTop");
 	filter->sceneBoundsWidth = (int)obs_data_get_int(settings, "boundsWidth");
 	filter->sceneBoundsHeight = (int)obs_data_get_int(settings, "boundsHeight");
+}
+
+static bool bounds_changed(void *data, obs_properties_t *props,
+	obs_property_t *p, obs_data_t *settings) {
+	window_follower_data_t *filter = data;
+
+	updateBounds(filter, settings);
 
 	return false;
 }
@@ -239,22 +243,22 @@ static obs_properties_t *window_follower_properties(void *data) {
 
 
 	{
-		obs_property_t *p = obs_properties_add_int(props, "boundsLeft", T_("Bounds.Left"), 0, vidInfo.base_width, 1);
+		obs_property_t *p = obs_properties_add_int(props, "boundsLeft", T_("Bounds.Left"), 0, vidInfo.base_width, 32);
 		obs_property_set_long_description(p, T_("Bounds.Left.LongDesc"));
 		obs_property_set_modified_callback2(p, bounds_changed, filter);
 	}
 	{
-		obs_property_t *p = obs_properties_add_int(props, "boundsWidth", T_("Bounds.Width"), 0, vidInfo.base_width, 1);
+		obs_property_t *p = obs_properties_add_int(props, "boundsWidth", T_("Bounds.Width"), 0, vidInfo.base_width, 32);
 		obs_property_set_long_description(p, T_("Bounds.Width.LongDesc"));
 		obs_property_set_modified_callback2(p, bounds_changed, filter);
 	}
 	{
-		obs_property_t *p = obs_properties_add_int(props, "boundsTop", T_("Bounds.Top"), 0, vidInfo.base_height, 1);
+		obs_property_t *p = obs_properties_add_int(props, "boundsTop", T_("Bounds.Top"), 0, vidInfo.base_height, 32);
 		obs_property_set_long_description(p, T_("Bounds.Top.LongDesc"));
 		obs_property_set_modified_callback2(p, bounds_changed, filter);
 	}
 	{
-		obs_property_t *p = obs_properties_add_int(props, "boundsHeight", T_("Bounds.Height"), 0, vidInfo.base_height, 1);
+		obs_property_t *p = obs_properties_add_int(props, "boundsHeight", T_("Bounds.Height"), 0, vidInfo.base_height, 32);
 		obs_property_set_long_description(p, T_("Bounds.Height.LongDesc"));
 		obs_property_set_modified_callback2(p, bounds_changed, filter);
 	}
@@ -379,6 +383,7 @@ static void window_follower_load(void *data, obs_data_t *settings) {
 	setupSceneItem(filter, settings);
 	updateStayInBoundsField(filter, settings);
 	updatePosScale(filter, settings);
+	updateBounds(filter, settings);
 }
 
 static void window_follower_show(void *data) {
@@ -389,6 +394,7 @@ static void window_follower_show(void *data) {
 	setupSceneItem(filter, settings);
 	updateStayInBoundsField(filter, settings);
 	updatePosScale(filter, settings);
+	updateBounds(filter, settings);
 
 	obs_data_release(settings);
 }
