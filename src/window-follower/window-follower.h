@@ -29,6 +29,11 @@ struct window_follower_data {
 	enum PosScaleMode posScale;
 
 	HMONITOR monitor;
+
+	int sceneBoundsTop;
+	int sceneBoundsLeft;
+	int sceneBoundsWidth;
+	int sceneBoundsHeight;
 };
 
 typedef struct window_follower_data window_follower_data_t;

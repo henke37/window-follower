@@ -166,6 +166,18 @@ static bool monitor_changed(void *data, obs_properties_t *props,
 	return false;
 }
 
+static bool bounds_changed(void *data, obs_properties_t *props,
+	obs_property_t *p, obs_data_t *settings) {
+	window_follower_data_t *filter = data;
+
+	filter->sceneBoundsLeft = (int)obs_data_get_int(settings, "boundsLeft");
+	filter->sceneBoundsTop = (int)obs_data_get_int(settings, "boundsTop");
+	filter->sceneBoundsWidth = (int)obs_data_get_int(settings, "boundsWidth");
+	filter->sceneBoundsHeight = (int)obs_data_get_int(settings, "boundsHeight");
+
+	return false;
+}
+
 void updateStayInBoundsField(window_follower_data_t *filter, obs_data_t *settings) {
 	filter->stayInBounds = obs_data_get_bool(settings, "stayInBounds");
 }
@@ -182,6 +194,9 @@ static bool stayInBounds_changed(void *data, obs_properties_t *props,
 static obs_properties_t *window_follower_properties(void *data) {
 	window_follower_data_t *filter = data;
 	obs_properties_t *props = obs_properties_create();
+
+	struct obs_video_info vidInfo;
+	obs_get_video_info(&vidInfo);
 
 	if(!filter->scene) return props;
 
@@ -219,6 +234,29 @@ static obs_properties_t *window_follower_properties(void *data) {
 		EnumDisplayMonitors(NULL, NULL, monitor_enum_proplist_add, (LPARAM)p);
 		obs_property_set_long_description(p, T_("Monitor.LongDesc"));
 		obs_property_set_modified_callback2(p, monitor_changed, filter);
+	}
+
+
+
+	{
+		obs_property_t *p = obs_properties_add_int(props, "boundsLeft", T_("Bounds.Left"), 0, vidInfo.base_width, 1);
+		obs_property_set_long_description(p, T_("Bounds.Left.LongDesc"));
+		obs_property_set_modified_callback2(p, bounds_changed, filter);
+	}
+	{
+		obs_property_t *p = obs_properties_add_int(props, "boundsWidth", T_("Bounds.Width"), 0, vidInfo.base_width, 1);
+		obs_property_set_long_description(p, T_("Bounds.Width.LongDesc"));
+		obs_property_set_modified_callback2(p, bounds_changed, filter);
+	}
+	{
+		obs_property_t *p = obs_properties_add_int(props, "boundsTop", T_("Bounds.Top"), 0, vidInfo.base_height, 1);
+		obs_property_set_long_description(p, T_("Bounds.Top.LongDesc"));
+		obs_property_set_modified_callback2(p, bounds_changed, filter);
+	}
+	{
+		obs_property_t *p = obs_properties_add_int(props, "boundsHeight", T_("Bounds.Height"), 0, vidInfo.base_height, 1);
+		obs_property_set_long_description(p, T_("Bounds.Height.LongDesc"));
+		obs_property_set_modified_callback2(p, bounds_changed, filter);
 	}
 
 	return props;
@@ -282,9 +320,6 @@ static void window_follower_tick(void *data, float seconds) {
 			RECT wndPos;
 
 			if(IsWindow(hwnd) && GetWindowRect(hwnd, &wndPos)) {
-				struct obs_video_info vidInfo;
-				obs_get_video_info(&vidInfo);
-
 				float itemWidth = (float)obs_source_get_width(filter->mainSource);
 				float itemHeight = (float)obs_source_get_height(filter->mainSource);
 
@@ -300,19 +335,22 @@ static void window_follower_tick(void *data, float seconds) {
 					float adjustedLeft = (float)wndPos.left - filter->baseWindowDisplayArea.left;
 					float adjustedTop  = (float)wndPos.top - filter->baseWindowDisplayArea.top;
 
-					float xScaler = (float)vidInfo.base_width / (float)(filter->baseWindowDisplayArea.right - filter->baseWindowDisplayArea.left);
-					float yScaler = (float)vidInfo.base_height / (float)(filter->baseWindowDisplayArea.bottom - filter->baseWindowDisplayArea.top);
+					float xScaler = (float)filter->sceneBoundsWidth / (float)(filter->baseWindowDisplayArea.right - filter->baseWindowDisplayArea.left);
+					float yScaler = (float)filter->sceneBoundsHeight / (float)(filter->baseWindowDisplayArea.bottom - filter->baseWindowDisplayArea.top);
 
-					filter->pos.x = adjustedLeft * xScaler;
-					filter->pos.y = adjustedTop * yScaler;
+					filter->pos.x = adjustedLeft * xScaler + filter->sceneBoundsLeft;
+					filter->pos.y = adjustedTop * yScaler + filter->sceneBoundsTop;
 				}
 
 				if(filter->stayInBounds) {
+					int sceneBoundsRight = filter->sceneBoundsLeft + filter->sceneBoundsWidth;
+					int sceneBoundsBottom = filter->sceneBoundsTop + filter->sceneBoundsHeight;
+
 					if(filter->pos.x < 0) filter->pos.x = 0;
-					if(filter->pos.x + itemWidth > vidInfo.base_width) filter->pos.x = vidInfo.base_width - itemWidth;
+					if(filter->pos.x + itemWidth > sceneBoundsRight) filter->pos.x = sceneBoundsRight - itemWidth;
 
 					if(filter->pos.y < 0) filter->pos.y = 0;
-					if(filter->pos.y + itemHeight > vidInfo.base_height) filter->pos.y = vidInfo.base_height - itemHeight;
+					if(filter->pos.y + itemHeight > sceneBoundsBottom) filter->pos.y = sceneBoundsBottom - itemHeight;
 				}
 
 			}
@@ -323,8 +361,16 @@ static void window_follower_tick(void *data, float seconds) {
 }
 
 static void window_follower_defaults(obs_data_t *settings) {
+	struct obs_video_info vidInfo;
+	obs_get_video_info(&vidInfo);
+
 	obs_data_set_default_string(settings, "posScale", "None");
 	obs_data_set_default_bool(settings, "stayInBounds", false);
+
+	obs_data_set_default_int(settings, "bounds.Left", 0);
+	obs_data_set_default_int(settings, "bounds.Width", vidInfo.base_width);
+	obs_data_set_default_int(settings, "bounds.Top", 0);
+	obs_data_set_default_int(settings, "bounds.Height", vidInfo.base_height);
 }
 
 static void window_follower_load(void *data, obs_data_t *settings) {
