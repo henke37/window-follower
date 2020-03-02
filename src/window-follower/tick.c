@@ -1,4 +1,3 @@
-#include "getHWND.h"
 #include "window-follower.h"
 
 #include <obs-module.h>
