@@ -4,8 +4,10 @@ project(window-follower)
 include(${CMAKE_SOURCE_DIR}/external/FindLibObs.cmake)
 find_package(LibObs REQUIRED)
 set(window-follower_SOURCES
-	window-follower.c
 	getHWND.c
+	setup.c
+	tick.c
+	properties.c
 	)
 	
 set(window-follower_HEADERS

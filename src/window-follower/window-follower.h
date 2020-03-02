@@ -38,6 +38,17 @@ struct window_follower_data {
 
 typedef struct window_follower_data window_follower_data_t;
 
+void window_follower_lateInit(window_follower_data_t *filter);
+
+void window_follower_tick(void *data, float seconds);
+obs_properties_t *window_follower_properties(void *data);
+
+void setupSceneItem(window_follower_data_t *filter, obs_data_t *settings);
+void updateStayInBoundsField(window_follower_data_t *filter, obs_data_t *settings);
+bool updatePosScale(window_follower_data_t *filter, obs_data_t *settings);
+void updateBounds(window_follower_data_t *filter, obs_data_t *settings);
+void updateStayInBoundsField(window_follower_data_t *filter, obs_data_t *settings);
+
 
 #define T_(v) obs_module_text(v)
 
