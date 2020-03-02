@@ -69,8 +69,6 @@ bool posScaleUsesMonitor(enum PosScaleMode posScale) {
 	}
 }
 
-
-
 bool updatePosScale(window_follower_data_t *filter, obs_data_t *settings) {
 	enum PosScaleMode newPosScale = parsePosScale(obs_data_get_string(settings, "posScale"));
 

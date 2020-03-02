@@ -43,7 +43,7 @@ static bool monitor_changed(void *data, obs_properties_t *props,
 	return false;
 }
 
-BOOL monitor_enum_proplist_add(
+static BOOL monitor_enum_proplist_add(
 	HMONITOR Arg1,
 	HDC Arg2,
 	LPRECT Arg3,
