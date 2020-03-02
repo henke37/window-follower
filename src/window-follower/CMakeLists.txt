@@ -8,6 +8,7 @@ set(window-follower_SOURCES
 	setup.c
 	tick.c
 	properties.c
+	monitor.c
 	)
 	
 set(window-follower_HEADERS

@@ -69,30 +69,7 @@ bool posScaleUsesMonitor(enum PosScaleMode posScale) {
 	}
 }
 
-struct monitor_enum_set_monitor_data {
-	window_follower_data_t *filter;
-	const char *monitorName;
-};
 
-BOOL monitor_enum_set_monitor(
-	HMONITOR Arg1,
-	HDC Arg2,
-	LPRECT Arg3,
-	LPARAM Arg4
-) {
-	struct monitor_enum_set_monitor_data *cbData = (struct monitor_enum_set_monitor_data *)Arg4;
-
-	MONITORINFOEXA info;
-	info.cbSize = sizeof(info);
-
-	BOOL success = GetMonitorInfoA(Arg1, (LPMONITORINFO)&info);
-
-	if(strcmp(info.szDevice, cbData->monitorName) != 0) return TRUE;
-
-	cbData->filter->monitor = Arg1;
-	cbData->filter->baseWindowDisplayArea = *Arg3;
-	return FALSE;
-}
 
 bool updatePosScale(window_follower_data_t *filter, obs_data_t *settings) {
 	enum PosScaleMode newPosScale = parsePosScale(obs_data_get_string(settings, "posScale"));
@@ -102,8 +79,7 @@ bool updatePosScale(window_follower_data_t *filter, obs_data_t *settings) {
 
 	filter->monitor = NULL;
 	if(posScaleUsesMonitor(newPosScale)) {
-		struct monitor_enum_set_monitor_data cbData = {.filter = filter, .monitorName = obs_data_get_string(settings, "monitor")};
-		EnumDisplayMonitors(NULL, NULL, monitor_enum_set_monitor, (LPARAM)&cbData);
+		updateMonitor(filter, settings);
 	}
 	if(filter->monitor == NULL) {
 		filter->baseWindowDisplayArea.left = GetSystemMetrics(SM_YVIRTUALSCREEN);
@@ -121,35 +97,6 @@ static bool posScale_changed(void *data, obs_properties_t *props,
 	window_follower_data_t *filter = data;
 
 	return updatePosScale(filter, settings);
-}
-
-BOOL monitor_enum_proplist_add(
-	HMONITOR Arg1,
-	HDC Arg2,
-	LPRECT Arg3,
-	LPARAM Arg4
-) {
-	obs_property_t *p = (obs_property_t *)Arg4;
-	MONITORINFOEXA info;
-	info.cbSize = sizeof(info);
-
-	BOOL success = GetMonitorInfoA(Arg1, (LPMONITORINFO)&info);
-	if(!success) return TRUE;
-
-	obs_property_list_add_string(p, info.szDevice, info.szDevice);
-
-	return TRUE;
-}
-
-
-
-static bool monitor_changed(void *data, obs_properties_t *props,
-	obs_property_t *p, obs_data_t *settings) {
-	window_follower_data_t *filter = data;
-
-	updatePosScale(filter, settings);
-
-	return false;
 }
 
 void updateBounds(window_follower_data_t *filter, obs_data_t *settings) {
@@ -219,14 +166,8 @@ obs_properties_t *window_follower_properties(void *data) {
 	}
 
 	if(posScaleUsesMonitor(filter->posScale)) {
-		obs_property_t *p = obs_properties_add_list(props, "monitor", T_("Monitor"),
-			OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
-		EnumDisplayMonitors(NULL, NULL, monitor_enum_proplist_add, (LPARAM)p);
-		obs_property_set_long_description(p, T_("Monitor.LongDesc"));
-		obs_property_set_modified_callback2(p, monitor_changed, filter);
+		createMonitorProperty(filter, props);
 	}
-
-
 
 	{
 		obs_property_t *p = obs_properties_add_int(props, "boundsLeft", T_("Bounds.Left"), 0, vidInfo.base_width, 32);

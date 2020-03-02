@@ -49,6 +49,9 @@ bool updatePosScale(window_follower_data_t *filter, obs_data_t *settings);
 void updateBounds(window_follower_data_t *filter, obs_data_t *settings);
 void updateStayInBoundsField(window_follower_data_t *filter, obs_data_t *settings);
 
+void createMonitorProperty(window_follower_data_t *filter, obs_properties_t *props);
+void updateMonitor(window_follower_data_t *filter, obs_data_t *settings);
+
 
 #define T_(v) obs_module_text(v)
 
