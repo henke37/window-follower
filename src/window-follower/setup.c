@@ -62,7 +62,7 @@ static void window_follower_defaults(obs_data_t *settings) {
 	struct obs_video_info vidInfo;
 	obs_get_video_info(&vidInfo);
 
-	obs_data_set_default_string(settings, "posScale", "None");
+	obs_data_set_default_string(settings, "posScale", "DesktopToScene");
 	obs_data_set_default_bool(settings, "stayInBounds", false);
 
 	obs_data_set_default_int(settings, "bounds.Left", 0);
