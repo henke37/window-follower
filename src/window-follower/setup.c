@@ -116,3 +116,13 @@ bool obs_module_load(void) {
 	obs_register_source(&window_follower);
 	return true;
 }
+
+OBS_MODULE_AUTHOR("Henke37");
+
+const char *obs_module_name(void) {
+	return "Window-follower";
+}
+
+const char *obs_module_description(void) {
+	return "Makes scene items follow the movement of the window the source is capturing from";
+}
