@@ -109,6 +109,10 @@ struct obs_source_info window_follower = {
 };
 
 bool obs_module_load(void) {
+	if(obs_get_version() != LIBOBS_API_VER) {
+		return false;
+	}
+
 	obs_register_source(&window_follower);
 	return true;
 }
