@@ -46,12 +46,13 @@ static void window_follower_remove(void *data, obs_source_t *source) {
 		filter->sceneItem = NULL;
 	}
 
+	window_follower_signal_cleanup(filter);
+
 	UNUSED_PARAMETER(source);
 }
 
 static void window_follower_destroy(void *data) {
 	window_follower_data_t *filter = data;
-	window_follower_signal_cleanup(filter);
 	bfree(filter);
 }
 
