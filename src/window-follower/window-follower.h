@@ -52,6 +52,10 @@ void updateStayInBoundsField(window_follower_data_t *filter, obs_data_t *setting
 void createMonitorProperty(window_follower_data_t *filter, obs_properties_t *props);
 void updateMonitor(window_follower_data_t *filter, obs_data_t *settings);
 
+void window_follower_signal_lateSetup(window_follower_data_t *filter);
+void window_follower_signal_setup(window_follower_data_t *filter);
+void window_follower_signal_cleanup(window_follower_data_t *filter);
+
 
 #define T_(v) obs_module_text(v)
 

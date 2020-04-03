@@ -19,6 +19,7 @@ static void window_follower_updateSettings(void *data, obs_data_t *settings) {
 static void *window_follower_create(obs_data_t *settings, obs_source_t *context) {
 	window_follower_data_t *filter = bzalloc(sizeof(*filter));
 	filter->filterSource = context;
+	window_follower_signal_setup(filter);
 
 	return filter;
 }
@@ -26,6 +27,8 @@ static void *window_follower_create(obs_data_t *settings, obs_source_t *context)
 void window_follower_lateInit(window_follower_data_t *filter) {
 	obs_source_t *sceneSource = obs_filter_get_parent(filter->filterSource);
 	filter->scene = obs_scene_from_source(sceneSource);
+
+	window_follower_signal_lateSetup(filter);
 
 	filter->lateInitializationDone = true;
 }
@@ -48,6 +51,7 @@ static void window_follower_remove(void *data, obs_source_t *source) {
 
 static void window_follower_destroy(void *data) {
 	window_follower_data_t *filter = data;
+	window_follower_signal_cleanup(filter);
 	bfree(filter);
 }
 
