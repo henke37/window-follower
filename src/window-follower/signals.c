@@ -1,8 +1,6 @@
 #include "window-follower.h"
 
-#include <obs-module.h>
-
-
+#include <obs.h>
 
 void window_follower_onAdd(void *data, calldata_t *cd) {
 	window_follower_data_t *filter = data;

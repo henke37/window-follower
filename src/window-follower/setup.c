@@ -2,7 +2,7 @@
 
 #include <obs-module.h>
 #include <util/dstr.h>
-#include <obs-frontend-api.h>
+#include <obs.h>
 
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE("window-follower", "en-US")

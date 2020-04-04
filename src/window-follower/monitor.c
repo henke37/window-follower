@@ -1,8 +1,7 @@
 #include "window-follower.h"
 
-#include <obs-module.h>
 #include <util/dstr.h>
-#include <obs-frontend-api.h>
+#include <obs.h>
 #include <util/platform.h>
 
 static char *getFriendlyMonitorName(const MONITORINFOEXW *info);

@@ -1,9 +1,8 @@
 #include "getHWND.h"
 #include "window-follower.h"
 
-#include <obs-module.h>
 #include <util/dstr.h>
-#include <obs-frontend-api.h>
+#include <obs.h>
 
 static bool source_enum_proplist_add(obs_scene_t *scene,
 	obs_sceneitem_t *item, void *p) {
