@@ -190,3 +190,16 @@ obs_properties_t *window_follower_properties(void *data) {
 
 	return props;
 }
+
+void window_follower_defaults(obs_data_t *settings) {
+	struct obs_video_info vidInfo;
+	obs_get_video_info(&vidInfo);
+
+	obs_data_set_default_string(settings, "posScale", "DesktopToScene");
+	obs_data_set_default_bool(settings, "stayInBounds", false);
+
+	obs_data_set_default_int(settings, "boundsLeft", 0);
+	obs_data_set_default_int(settings, "boundsWidth", vidInfo.base_width);
+	obs_data_set_default_int(settings, "boundsTop", 0);
+	obs_data_set_default_int(settings, "boundsHeight", vidInfo.base_height);
+}

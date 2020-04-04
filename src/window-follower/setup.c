@@ -56,19 +56,6 @@ static void window_follower_destroy(void *data) {
 	bfree(filter);
 }
 
-static void window_follower_defaults(obs_data_t *settings) {
-	struct obs_video_info vidInfo;
-	obs_get_video_info(&vidInfo);
-
-	obs_data_set_default_string(settings, "posScale", "DesktopToScene");
-	obs_data_set_default_bool(settings, "stayInBounds", false);
-
-	obs_data_set_default_int(settings, "bounds.Left", 0);
-	obs_data_set_default_int(settings, "bounds.Width", vidInfo.base_width);
-	obs_data_set_default_int(settings, "bounds.Top", 0);
-	obs_data_set_default_int(settings, "bounds.Height", vidInfo.base_height);
-}
-
 static void window_follower_load(void *data, obs_data_t *settings) {
 	window_follower_data_t *filter = data;
 
