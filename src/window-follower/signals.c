@@ -26,6 +26,7 @@ void window_follower_onRemove(void *data, calldata_t *cd) {
 }
 
 void window_follower_signal_lateSetup(window_follower_data_t *filter) {
+	if(!filter->scene) return;
 	signal_handler_t *sigHandler = obs_source_get_signal_handler(obs_scene_get_source(filter->scene));
 
 	signal_handler_connect(sigHandler, "item_add", window_follower_onAdd, filter);
