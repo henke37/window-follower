@@ -32,6 +32,7 @@ void setupSceneItem(window_follower_data_t *filter, obs_data_t *settings) {
 
 	if(filter->mainSource) {
 		obs_source_release(filter->mainSource);
+		window_follower_signal_cleanup_mainsource(filter);
 	}
 
 	obs_source_t *source = obs_sceneitem_get_source(filter->sceneItem);
@@ -39,9 +40,10 @@ void setupSceneItem(window_follower_data_t *filter, obs_data_t *settings) {
 	if(source) {
 		obs_source_addref(source);
 		filter->mainSource = source;
+		window_follower_signal_setup_mainsource(filter);
 	}
 
-	filter->hwndPtr = GetHWND(source);
+	filter->window = GetHWND(source);
 }
 
 static bool source_changed(void *data, obs_properties_t *props,

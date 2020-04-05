@@ -2,9 +2,26 @@
 
 #include <obs.h>
 
+
+void window_follower_onWindowChange(void *data, calldata_t *cd) {
+	window_follower_data_t *filter = data;
+
+	filter->window=calldata_ptr(cd, "window");
+}
+
 void window_follower_onAdd(void *data, calldata_t *cd) {
 	window_follower_data_t *filter = data;
 	obs_sceneitem_t *item = calldata_ptr(cd, "item");
+}
+
+void window_follower_signal_cleanup_mainsource(window_follower_data_t *filter) {
+	signal_handler_t *sigHandler = obs_source_get_signal_handler(filter->mainSource);
+	signal_handler_disconnect(sigHandler, "window_changed", window_follower_onWindowChange, filter);
+}
+
+void window_follower_signal_setup_mainsource(window_follower_data_t *filter) {
+	signal_handler_t *sigHandler = obs_source_get_signal_handler(filter->mainSource);
+	signal_handler_connect(sigHandler, "window_changed", window_follower_onWindowChange, filter);
 }
 
 void window_follower_onRemove(void *data, calldata_t *cd) {
@@ -14,12 +31,14 @@ void window_follower_onRemove(void *data, calldata_t *cd) {
 	if(item != filter->sceneItem) return;
 
 	if(filter->sceneItem) {
+		window_follower_signal_cleanup_mainsource(filter);
+
 		obs_sceneitem_release(filter->sceneItem);
 		obs_source_release(filter->mainSource);
 
 		filter->sceneItem = NULL;
 		filter->mainSource = NULL;
-		filter->hwndPtr = NULL;
+		filter->window = NULL;
 	}
 }
 

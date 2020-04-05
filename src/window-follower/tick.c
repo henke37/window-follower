@@ -16,9 +16,9 @@ void window_follower_tick(void *data, float seconds) {
 		//filter->pos.x += 0.1f;
 		//if (filter->pos.x > 400) filter->pos.x -= 400;
 
-		if(filter->hwndPtr) {
+		if(filter->window) {
 
-			if(IsWindow(*filter->hwndPtr)) {
+			if(IsWindow(filter->window)) {
 				realTick(filter);
 			}
 		}
@@ -29,7 +29,7 @@ void window_follower_tick(void *data, float seconds) {
 
 void realTick(window_follower_data_t *filter) {
 	RECT wndPos;
-	GetWindowRect(*filter->hwndPtr, &wndPos);
+	GetWindowRect(filter->window, &wndPos);
 
 	float itemWidth = (float)obs_source_get_width(filter->mainSource);
 	float itemHeight = (float)obs_source_get_height(filter->mainSource);

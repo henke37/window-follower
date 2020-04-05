@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <obs-module.h>
 
-HWND* GetHWND(obs_source_t*);
+HWND GetHWND(obs_source_t*);
 
 bool CanGetHWND(obs_source_t*);
 
