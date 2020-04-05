@@ -7,11 +7,6 @@ You added the filter to the source. Add it to the scene instead.
 This is because filters on sources apply to all instances of the source on all scenes.
 
 
-## I updated OBS and the plugin no longer loads
-
-That's by design. Due to the black magic used in this plugin, changes in OBS may require adjusting the code in this plugin to match.
-
-
 ## I can't move the scene item
 
 This plugin moves the scene item for you. Use the boundrary settings to control where it can position the source.
