@@ -1,5 +1,5 @@
 # window-follower
-OBS plugin to have scene items follow their onscreen window
+OBS plugin  that makes scene items follow the movement of the window the source is capturing from
 
 ## Usage
 Add the plugin to the scene with the scene item that you want to work with. Set the scene item to work with.
