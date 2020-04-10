@@ -116,11 +116,24 @@ void updateStayInBoundsField(window_follower_data_t *filter, obs_data_t *setting
 	filter->stayInBounds = obs_data_get_bool(settings, "stayInBounds");
 }
 
+void updateOnlyClientArea(window_follower_data_t *filter, obs_data_t *settings) {
+	filter->onlyClientArea = obs_data_get_bool(settings, "onlyClientArea");
+}
+
 static bool stayInBounds_changed(void *data, obs_properties_t *props,
 	obs_property_t *p, obs_data_t *settings) {
 	window_follower_data_t *filter = data;
 
 	updateStayInBoundsField(filter, settings);
+
+	return false;
+}
+
+static bool onlyClientArea_changed(void *data, obs_properties_t *props,
+	obs_property_t *p, obs_data_t *settings) {
+	window_follower_data_t *filter = data;
+
+	updateOnlyClientArea(filter, settings);
 
 	return false;
 }
@@ -185,6 +198,12 @@ obs_properties_t *window_follower_properties(void *data) {
 		obs_property_t *p = obs_properties_add_int(props, "boundsHeight", T_("Bounds.Height"), 0, vidInfo.base_height, 32);
 		obs_property_set_long_description(p, T_("Bounds.Height.LongDesc"));
 		obs_property_set_modified_callback2(p, bounds_changed, filter);
+	}
+
+	{
+		obs_property_t *p = obs_properties_add_bool(props, "onlyClientArea", T_("OnlyClientArea"));
+		obs_property_set_long_description(p, T_("OnlyClientArea.LongDesc"));
+		obs_property_set_modified_callback2(p, onlyClientArea_changed, filter);
 	}
 
 	return props;

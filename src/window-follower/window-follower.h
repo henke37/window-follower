@@ -34,6 +34,8 @@ struct window_follower_data {
 	int sceneBoundsLeft;
 	int sceneBoundsWidth;
 	int sceneBoundsHeight;
+
+	bool onlyClientArea;
 };
 
 typedef struct window_follower_data window_follower_data_t;
@@ -49,6 +51,7 @@ void updateStayInBoundsField(window_follower_data_t *filter, obs_data_t *setting
 bool updatePosScale(window_follower_data_t *filter, obs_data_t *settings);
 void updateBounds(window_follower_data_t *filter, obs_data_t *settings);
 void updateStayInBoundsField(window_follower_data_t *filter, obs_data_t *settings);
+void updateOnlyClientArea(window_follower_data_t *filter, obs_data_t *settings);
 
 void createMonitorProperty(window_follower_data_t *filter, obs_properties_t *props);
 void updateMonitor(window_follower_data_t *filter, obs_data_t *settings);
