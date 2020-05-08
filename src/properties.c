@@ -167,24 +167,29 @@ obs_properties_t *window_follower_properties(void *data) {
 	}
 
 	{
-		obs_property_t *p = obs_properties_add_int(props, "boundsLeft", T_("Bounds.Left"), 0, vidInfo.base_width, 32);
-		obs_property_set_long_description(p, T_("Bounds.Left.LongDesc"));
-		obs_property_set_modified_callback2(p, bounds_changed, filter);
-	}
-	{
-		obs_property_t *p = obs_properties_add_int(props, "boundsWidth", T_("Bounds.Width"), 0, vidInfo.base_width, 32);
-		obs_property_set_long_description(p, T_("Bounds.Width.LongDesc"));
-		obs_property_set_modified_callback2(p, bounds_changed, filter);
-	}
-	{
-		obs_property_t *p = obs_properties_add_int(props, "boundsTop", T_("Bounds.Top"), 0, vidInfo.base_height, 32);
-		obs_property_set_long_description(p, T_("Bounds.Top.LongDesc"));
-		obs_property_set_modified_callback2(p, bounds_changed, filter);
-	}
-	{
-		obs_property_t *p = obs_properties_add_int(props, "boundsHeight", T_("Bounds.Height"), 0, vidInfo.base_height, 32);
-		obs_property_set_long_description(p, T_("Bounds.Height.LongDesc"));
-		obs_property_set_modified_callback2(p, bounds_changed, filter);
+		obs_properties_t *boundsProps = obs_properties_create();
+		{
+			obs_property_t *p = obs_properties_add_int(boundsProps, "boundsLeft", T_("Bounds.Left"), 0, vidInfo.base_width, 32);
+			obs_property_set_long_description(p, T_("Bounds.Left.LongDesc"));
+			obs_property_set_modified_callback2(p, bounds_changed, filter);
+		}
+		{
+			obs_property_t *p = obs_properties_add_int(boundsProps, "boundsWidth", T_("Bounds.Width"), 0, vidInfo.base_width, 32);
+			obs_property_set_long_description(p, T_("Bounds.Width.LongDesc"));
+			obs_property_set_modified_callback2(p, bounds_changed, filter);
+		}
+		{
+			obs_property_t *p = obs_properties_add_int(boundsProps, "boundsTop", T_("Bounds.Top"), 0, vidInfo.base_height, 32);
+			obs_property_set_long_description(p, T_("Bounds.Top.LongDesc"));
+			obs_property_set_modified_callback2(p, bounds_changed, filter);
+		}
+		{
+			obs_property_t *p = obs_properties_add_int(boundsProps, "boundsHeight", T_("Bounds.Height"), 0, vidInfo.base_height, 32);
+			obs_property_set_long_description(p, T_("Bounds.Height.LongDesc"));
+			obs_property_set_modified_callback2(p, bounds_changed, filter);
+		}
+
+		obs_properties_add_group(props, "bounds", T_("Bounds.Group"), OBS_GROUP_NORMAL, boundsProps);
 	}
 
 	return props;
