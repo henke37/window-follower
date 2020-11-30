@@ -5,10 +5,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-if (WIN32 OR APPLE)
-include(external/FindLibObs.cmake)
-endif()
-
 find_package(LibObs REQUIRED)
 
 set(PLUGIN_SOURCES
@@ -25,13 +21,16 @@ set(PLUGIN_HEADERS
 	src/window-follower.h
 	)
 
+include_directories(
+	"${OBSDIR}/UI/obs-frontend-api"
+	"${OBSDIR}/deps/ipc-util"
+	"${OBSDIR}/deps/libcaption")
+
 # --- Platform-independent build settings ---
 add_library(obs-window-follower MODULE
 	${PLUGIN_SOURCES}
 	${PLUGIN_HEADERS})
 
-include_directories(
-	"${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api")
 
 target_link_libraries(obs-window-follower
 	libobs)
