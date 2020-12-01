@@ -147,12 +147,6 @@ obs_properties_t *window_follower_properties(void *data) {
 	}
 
 	{
-		obs_property_t *p = obs_properties_add_bool(props, "stayInBounds", T_("StayInBounds"));
-		obs_property_set_long_description(p, T_("StayInBounds.LongDesc"));
-		obs_property_set_modified_callback2(p, stayInBounds_changed, filter);
-	}
-
-	{
 		obs_property_t *p = obs_properties_add_list(props, "posScale", T_("ScalePos"),
 			OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
 		obs_property_list_add_string(p, T_("ScalePos.None"), "None");
@@ -187,6 +181,12 @@ obs_properties_t *window_follower_properties(void *data) {
 			obs_property_t *p = obs_properties_add_int(boundsProps, "boundsHeight", T_("Bounds.Height"), 0, vidInfo.base_height, 32);
 			obs_property_set_long_description(p, T_("Bounds.Height.LongDesc"));
 			obs_property_set_modified_callback2(p, bounds_changed, filter);
+		}
+
+		{
+			obs_property_t *p = obs_properties_add_bool(boundsProps, "stayInBounds", T_("StayInBounds"));
+			obs_property_set_long_description(p, T_("StayInBounds.LongDesc"));
+			obs_property_set_modified_callback2(p, stayInBounds_changed, filter);
 		}
 
 		obs_properties_add_group(props, "bounds", T_("Bounds.Group"), OBS_GROUP_NORMAL, boundsProps);
