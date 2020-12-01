@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
-project(obs-window-follower)
+project(window-follower)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -28,12 +28,12 @@ include_directories(
 	"${OBSDIR}/deps/libcaption")
 
 # --- Platform-independent build settings ---
-add_library(obs-window-follower MODULE
+add_library(window-follower MODULE
 	${PLUGIN_SOURCES}
 	${PLUGIN_HEADERS})
 
 
-target_link_libraries(obs-window-follower
+target_link_libraries(window-follower
 	libobs)
 
 # --- End of section ---
@@ -57,14 +57,14 @@ if(WIN32)
 		"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/UI"
 	)
 
-	target_link_libraries(obs-window-follower
+	target_link_libraries(window-follower
 		"${OBS_FRONTEND_LIB}")
 
 	# --- Release package helper ---
 	# The "release" folder has a structure similar OBS' one on Windows
 	set(RELEASE_DIR "${PROJECT_SOURCE_DIR}/release")
 
-	add_custom_command(TARGET obs-window-follower POST_BUILD
+	add_custom_command(TARGET window-follower POST_BUILD
 		COMMAND if $<CONFIG:Release>==1 (
 			"${CMAKE_COMMAND}" -E make_directory
 			"${RELEASE_DIR}/data/obs-plugins/${CMAKE_PROJECT_NAME}"
@@ -102,13 +102,13 @@ endif()
 if(UNIX AND NOT APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-	set_target_properties(obs-window-follower PROPERTIES PREFIX "")
-	target_link_libraries(obs-window-follower
+	set_target_properties(window-follower PROPERTIES PREFIX "")
+	target_link_libraries(window-follower
 		obs-frontend-api)
 
 	file(GLOB locale_files data/locale/*.ini)
 
-	install(TARGETS obs-window-follower
+	install(TARGETS window-follower
 		LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/obs-plugins")
 	install(FILES ${locale_files}
 		DESTINATION "${CMAKE_INSTALL_PREFIX}/share/obs/obs-plugins/${CMAKE_PROJECT_NAME}/locale")
@@ -119,7 +119,7 @@ endif()
 if(APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -fvisibility=default")
 
-	set_target_properties(obs-window-follower PROPERTIES PREFIX "")
-	target_link_libraries(obs-window-follower "${OBS_FRONTEND_LIB}")
+	set_target_properties(window-follower PROPERTIES PREFIX "")
+	target_link_libraries(window-follower "${OBS_FRONTEND_LIB}")
 endif()
 # -- End of section --
