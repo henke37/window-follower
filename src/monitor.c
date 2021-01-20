@@ -11,7 +11,7 @@ struct monitor_enum_set_monitor_data {
 	const char *monitorName;
 };
 
-BOOL monitor_enum_set_monitor(
+BOOL CALLBACK monitor_enum_set_monitor(
 	HMONITOR Arg1,
 	HDC Arg2,
 	LPRECT Arg3,
@@ -45,7 +45,7 @@ static bool monitor_changed(void *data, obs_properties_t *props,
 	return false;
 }
 
-static BOOL monitor_enum_proplist_add(
+static BOOL CALLBACK monitor_enum_proplist_add(
 	HMONITOR Arg1,
 	HDC Arg2,
 	LPRECT Arg3,
