@@ -22,9 +22,9 @@ set(PLUGIN_HEADERS
 	)
 
 include_directories(
-	"${OBSDIR}/UI/obs-frontend-api"
-	"${OBSDIR}/deps/ipc-util"
-	"${OBSDIR}/deps/libcaption")
+	"${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api"
+	"${LIBOBS_INCLUDE_DIR}/../deps/ipc-util"
+	"${LIBOBS_INCLUDE_DIR}/../deps/libcaption")
 
 # --- Platform-independent build settings ---
 add_library(window-follower MODULE
