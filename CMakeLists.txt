@@ -25,6 +25,7 @@ set(PLUGIN_HEADERS
 include_directories(
 	"${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api"
 	"${LIBOBS_INCLUDE_DIR}/../deps/ipc-util"
+	"${LIBOBS_INCLUDE_DIR}/../deps/w32-pthreads"
 	"${LIBOBS_INCLUDE_DIR}/../deps/libcaption")
 
 # --- Platform-independent build settings ---

@@ -8,6 +8,7 @@
 #include <windows.h>
 #include <obs-module.h>
 #include <ipc-util/pipe.h>
+#include <pthread.h>
 
 struct dc_capture {
 	gs_texture_t *texture;
