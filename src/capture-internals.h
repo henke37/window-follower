@@ -30,15 +30,33 @@ struct dc_capture {
 	bool valid;
 };
 
+typedef BOOL(*PFN_winrt_capture_supported)();
+typedef BOOL(*PFN_winrt_capture_cursor_toggle_supported)();
+typedef struct winrt_capture *(*PFN_winrt_capture_init)(BOOL cursor,
+	HWND window,
+	BOOL client_area);
+typedef void (*PFN_winrt_capture_free)(struct winrt_capture *capture);
+
+typedef BOOL(*PFN_winrt_capture_active)(const struct winrt_capture *capture);
+typedef void (*PFN_winrt_capture_show_cursor)(struct winrt_capture *capture,
+	BOOL visible);
+typedef void (*PFN_winrt_capture_render)(struct winrt_capture *capture,
+	gs_effect_t *effect);
+typedef uint32_t(*PFN_winrt_capture_width)(const struct winrt_capture *capture);
+typedef uint32_t(*PFN_winrt_capture_height)(
+	const struct winrt_capture *capture);
+
 struct winrt_exports {
-	BOOL *(*winrt_capture_supported)();
-	struct winrt_capture *(*winrt_capture_init)(BOOL cursor, HWND window,
-		BOOL client_area);
-	void (*winrt_capture_free)(struct winrt_capture *capture);
-	void (*winrt_capture_render)(struct winrt_capture *capture,
-		gs_effect_t *effect);
-	uint32_t(*winrt_capture_width)(const struct winrt_capture *capture);
-	uint32_t(*winrt_capture_height)(const struct winrt_capture *capture);
+	PFN_winrt_capture_supported winrt_capture_supported;
+	PFN_winrt_capture_cursor_toggle_supported
+		winrt_capture_cursor_toggle_supported;
+	PFN_winrt_capture_init winrt_capture_init;
+	PFN_winrt_capture_free winrt_capture_free;
+	PFN_winrt_capture_active winrt_capture_active;
+	PFN_winrt_capture_show_cursor winrt_capture_show_cursor;
+	PFN_winrt_capture_render winrt_capture_render;
+	PFN_winrt_capture_width winrt_capture_width;
+	PFN_winrt_capture_height winrt_capture_height;
 };
 
 enum window_capture_method {
