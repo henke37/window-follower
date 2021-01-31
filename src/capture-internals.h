@@ -49,6 +49,8 @@ enum window_capture_method {
 struct window_capture {
 	obs_source_t *source;
 
+	pthread_mutex_t update_mutex;
+
 	char *title;
 	char *class;
 	char *executable;
@@ -62,6 +64,7 @@ struct window_capture {
 	struct dc_capture capture;
 
 	bool wgc_supported;
+	bool previously_failed;
 	void *winrt_module;
 	struct winrt_exports exports;
 	struct winrt_capture *capture_winrt;
@@ -108,17 +111,15 @@ enum hook_rate {
 	HOOK_RATE_FASTEST
 };
 
+
 struct game_capture_config {
 	char *title;
 	char *class;
 	char *executable;
 	enum window_priority priority;
 	enum capture_mode mode;
-	uint32_t scale_cx;
-	uint32_t scale_cy;
 	bool cursor;
 	bool force_shmem;
-	bool force_scaling;
 	bool allow_transparency;
 	bool limit_framerate;
 	bool capture_overlays;
