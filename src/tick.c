@@ -17,8 +17,7 @@ void window_follower_tick(void *data, float seconds) {
 		//if (filter->pos.x > 400) filter->pos.x -= 400;
 
 		if(filter->hwndPtr) {
-
-			if(IsWindow(*filter->hwndPtr)) {
+			if(IsWindow(*filter->hwndPtr) && !IsIconic(*filter->hwndPtr)) {
 				realTick(filter);
 			}
 		}
