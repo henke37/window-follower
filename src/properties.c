@@ -125,6 +125,19 @@ static bool stayInBounds_changed(void *data, obs_properties_t *props,
 	return false;
 }
 
+void updateHideMinimizedField(window_follower_data_t *filter, obs_data_t *settings) {
+	filter->hideMinimized = obs_data_get_bool(settings, "hideMinimized");
+}
+
+static bool hideMinimized_changed(void *data, obs_properties_t *props,
+	obs_property_t *p, obs_data_t *settings) {
+	window_follower_data_t *filter = data;
+
+	updateHideMinimizedField(filter, settings);
+
+	return false;
+}
+
 obs_properties_t *window_follower_properties(void *data) {
 	window_follower_data_t *filter = data;
 	obs_properties_t *props = obs_properties_create();
@@ -192,6 +205,11 @@ obs_properties_t *window_follower_properties(void *data) {
 		obs_properties_add_group(props, "bounds", T_("Bounds.Group"), OBS_GROUP_NORMAL, boundsProps);
 	}
 
+	{
+		obs_property_t *p = obs_properties_add_bool(props, "hideMinimized", T_("HideMinimized"));
+		obs_property_set_modified_callback2(p, hideMinimized_changed, filter);
+	}
+
 	return props;
 }
 
@@ -206,4 +224,6 @@ void window_follower_defaults(obs_data_t *settings) {
 	obs_data_set_default_int(settings, "boundsWidth", vidInfo.base_width);
 	obs_data_set_default_int(settings, "boundsTop", 0);
 	obs_data_set_default_int(settings, "boundsHeight", vidInfo.base_height);
+
+	obs_data_set_default_bool(settings, "hideMinimized", true);
 }

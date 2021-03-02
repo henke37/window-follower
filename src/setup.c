@@ -63,6 +63,7 @@ static void window_follower_load(void *data, obs_data_t *settings) {
 	updateStayInBoundsField(filter, settings);
 	updatePosScale(filter, settings);
 	updateBounds(filter, settings);
+	updateHideMinimizedField(filter, settings);
 }
 
 static void window_follower_show(void *data) {
@@ -74,6 +75,7 @@ static void window_follower_show(void *data) {
 	updateStayInBoundsField(filter, settings);
 	updatePosScale(filter, settings);
 	updateBounds(filter, settings);
+	updateHideMinimizedField(filter, settings);
 
 	obs_data_release(settings);
 }
