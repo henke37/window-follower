@@ -22,10 +22,8 @@ void window_follower_tick(void *data, float seconds) {
 				if(!iconic) {
 					realTick(filter);
 				}
-				if(iconic && filter->hideMinimized) {
-					obs_sceneitem_set_visible(filter->sceneItem, false);
-				} else {
-					obs_sceneitem_set_visible(filter->sceneItem, true);
+				if(filter->hideMinimized) {
+					obs_sceneitem_set_visible(filter->sceneItem, !iconic);
 				}
 			}
 		}
