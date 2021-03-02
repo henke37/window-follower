@@ -16,9 +16,17 @@ void window_follower_tick(void *data, float seconds) {
 		//filter->pos.x += 0.1f;
 		//if (filter->pos.x > 400) filter->pos.x -= 400;
 
-		if(filter->window) {
-			if(IsWindow(filter->window) && !IsIconic(filter->window)) {
-				realTick(filter);
+		if(filter->hwndPtr) {
+			if(IsWindow(filter->window)) {
+				BOOL iconic = IsIconic(filter->window);
+				
+				if(!iconic) {
+					realTick(filter);
+				}
+
+				if(filter->hideMinimized) {
+					obs_sceneitem_set_visible(filter->sceneItem, !iconic);
+				}
 			}
 		}
 

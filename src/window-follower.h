@@ -25,6 +25,7 @@ struct window_follower_data {
 	bool lateInitializationDone;
 
 	bool stayInBounds;
+	bool hideMinimized;
 
 	enum PosScaleMode posScale;
 
@@ -49,6 +50,7 @@ void updateStayInBoundsField(window_follower_data_t *filter, obs_data_t *setting
 bool updatePosScale(window_follower_data_t *filter, obs_data_t *settings);
 void updateBounds(window_follower_data_t *filter, obs_data_t *settings);
 void updateStayInBoundsField(window_follower_data_t *filter, obs_data_t *settings);
+void updateHideMinimizedField(window_follower_data_t *filter, obs_data_t *settings);
 
 void createMonitorProperty(window_follower_data_t *filter, obs_properties_t *props);
 void updateMonitor(window_follower_data_t *filter, obs_data_t *settings);
